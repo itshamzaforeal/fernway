@@ -1,0 +1,611 @@
+<title>Fernway</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,500;0,600;0,700;1,500&family=Sora:wght@400;500;600;700&family=Overpass+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============ TOKENS ============ */
+:root{
+--ground:#F4EEE2;
+--surface:#FFFFFF;
+--surface-2:#ECE3D1;
+--ink:#2B2926;
+--ink-soft:#635C50;
+--ink-faint:#8F8778;
+--accent:#C98A2B;
+--accent-ink:#2B2115;
+--accent-2:#6B3F52;
+--line:rgba(43,41,38,0.14);
+--line-strong:rgba(43,41,38,0.26);
+--accent-soft:rgba(201,138,43,0.13);
+--shadow:0 1px 2px rgba(43,41,38,0.05), 0 14px 32px -18px rgba(43,41,38,0.28);
+--band-ink:#FBF3E3;
+--font-display:'Petrona','Iowan Old Style','Palatino Linotype',Georgia,serif;
+--font-body:'Sora','Segoe UI',system-ui,-apple-system,sans-serif;
+--font-mono:'Overpass Mono','SFMono-Regular',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]){
+--ground:#17140F;
+--surface:#211D17;
+--surface-2:#2A251D;
+--ink:#F1E9DB;
+--ink-soft:#BDB2A0;
+--ink-faint:#8B8271;
+--accent:#E0A94C;
+--accent-ink:#221803;
+--accent-2:#A5708A;
+--line:rgba(241,233,219,0.13);
+--line-strong:rgba(241,233,219,0.24);
+--accent-soft:rgba(224,169,76,0.15);
+--shadow:0 1px 2px rgba(0,0,0,0.35), 0 16px 36px -18px rgba(0,0,0,0.65);
+}
+}
+:root[data-theme="dark"]{
+--ground:#17140F;
+--surface:#211D17;
+--surface-2:#2A251D;
+--ink:#F1E9DB;
+--ink-soft:#BDB2A0;
+--ink-faint:#8B8271;
+--accent:#E0A94C;
+--accent-ink:#221803;
+--accent-2:#A5708A;
+--line:rgba(241,233,219,0.13);
+--line-strong:rgba(241,233,219,0.24);
+--accent-soft:rgba(224,169,76,0.15);
+--shadow:0 1px 2px rgba(0,0,0,0.35), 0 16px 36px -18px rgba(0,0,0,0.65);
+}
+/* ============ RESET / BASE ============ */
+*,*::before,*::after{box-sizing:border-box;}
+h1,h2,h3,p,figure{margin:0;}
+img,svg{display:block;max-width:100%;}
+ul{margin:0;padding:0;list-style:none;}
+a{color:inherit;text-decoration:none;}
+body{
+background:var(--ground);
+color:var(--ink);
+font-family:var(--font-body);
+font-size:1rem;
+line-height:1.6;
+-webkit-font-smoothing:antialiased;
+}
+a:focus-visible,button:focus-visible,.btn:focus-visible{
+outline:2px solid var(--accent);
+outline-offset:3px;
+border-radius:2px;
+}
+@media (prefers-reduced-motion: reduce){
+*,*::before,*::after{
+animation-duration:0.001ms !important;
+animation-iteration-count:1 !important;
+transition-duration:0.001ms !important;
+scroll-behavior:auto !important;
+}
+}
+.wrap{max-width:1180px;margin-inline:auto;padding-inline:clamp(1.25rem,4vw,3rem);}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;text-wrap:balance;color:var(--ink);}
+.eyebrow{
+font-family:var(--font-mono);
+font-size:0.78rem;
+letter-spacing:0.11em;
+text-transform:uppercase;
+color:var(--ink-soft);
+display:flex;align-items:center;gap:.6rem;
+}
+.lede{font-size:1.2rem;line-height:1.65;color:var(--ink-soft);text-wrap:balance;}
+.tabular{font-variant-numeric:tabular-nums;}
+/* ============ DIVIDER GLYPH (pivot motif, reused) ============ */
+.glyph{width:40px;height:22px;flex:none;}
+.glyph .seg-a{stroke:var(--ink-faint);}
+.glyph .seg-b{stroke:var(--accent);}
+.glyph .node{fill:var(--accent);}
+/* ============ NAV ============ */
+.nav{
+position:sticky;top:0;z-index:40;
+background:var(--ground);
+border-bottom:1px solid var(--line);
+}
+.nav .wrap{
+display:flex;align-items:center;justify-content:space-between;
+gap:1.5rem;padding-block:1.05rem;
+}
+.brand{display:flex;align-items:center;gap:.55rem;font-family:var(--font-display);font-weight:700;font-size:1.28rem;letter-spacing:0.01em;}
+.brand svg{width:22px;height:22px;}
+.brand .seg-a{stroke:var(--ink-soft);}
+.brand .seg-b{stroke:var(--accent);}
+.brand .node{fill:var(--accent);}
+.nav-links{display:flex;gap:2rem;font-size:0.95rem;color:var(--ink-soft);}
+.nav-links a{transition:color .15s ease;}
+.nav-links a:hover{color:var(--ink);}
+.nav-right{display:flex;align-items:center;gap:1.5rem;}
+@media (max-width:760px){ .nav-links{display:none;} }
+/* ============ BUTTONS ============ */
+.btn{
+display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+font-family:var(--font-body);font-weight:600;font-size:0.95rem;
+padding:0.8rem 1.5rem;border-radius:3px;
+border:1px solid transparent;cursor:pointer;
+transition:transform .15s ease, background .15s ease, border-color .15s ease;
+white-space:nowrap;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn-primary{background:var(--accent);color:var(--accent-ink);}
+.btn-primary:hover{background:var(--accent);filter:brightness(1.06);}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-strong);}
+.btn-ghost:hover{border-color:var(--ink-soft);}
+.btn-small{padding:0.6rem 1.1rem;font-size:0.85rem;}
+/* ============ SECTION SCAFFOLD ============ */
+section{padding-block:clamp(3.5rem,8vw,6.5rem);}
+.section-head{max-width:640px;margin-bottom:clamp(2.25rem,5vw,3.5rem);display:flex;flex-direction:column;gap:1rem;}
+.section-head h2{font-size:clamp(1.7rem,3vw,2.3rem);}
+.rule{border-top:1px solid var(--line);}
+/* ============ HERO ============ */
+.hero .wrap{
+display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);
+gap:clamp(2.5rem,6vw,4.5rem);align-items:center;
+padding-block:clamp(3rem,8vw,5.5rem);
+}
+.hero-copy{display:flex;flex-direction:column;gap:1.6rem;max-width:560px;}
+.hero h1{font-size:clamp(2.35rem,4.6vw,3.6rem);line-height:1.09;letter-spacing:-0.01em;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:0.9rem;margin-top:.4rem;}
+.hero-diagram{
+background:var(--surface);border:1px solid var(--line);border-radius:4px;
+box-shadow:var(--shadow);padding:1.4rem 1.2rem 1.1rem;
+}
+.hero-diagram svg{width:100%;height:auto;}
+.pivot-label{font-family:var(--font-mono);font-size:12.5px;letter-spacing:0.06em;text-transform:uppercase;fill:var(--ink-soft);}
+.pivot-label.dim{fill:var(--ink-faint);}
+.pivot-label.accent{fill:var(--accent);}
+.pivot-grid{stroke:var(--line);}
+.pivot-old{stroke:var(--ink-soft);}
+.pivot-new{stroke:var(--accent);}
+.pivot-shadow{stroke:var(--ink-faint);}
+.pivot-dot-start{fill:var(--ink-soft);}
+.pivot-dot-pivot{fill:var(--accent);}
+.pivot-dot-end{fill:var(--accent);}
+.pivot-dot-shadow{fill:var(--ink-faint);}
+.pivot-ring{
+fill:none;stroke:var(--accent);stroke-width:1.4;opacity:0;
+transform-origin:260px 270px;
+animation:pivot-pulse 3s ease-out infinite;
+}
+@keyframes pivot-pulse{
+0%{opacity:.55;transform:scale(1);}
+75%{opacity:0;transform:scale(2.6);}
+100%{opacity:0;transform:scale(2.6);}
+}
+@media (max-width:860px){
+.hero .wrap{grid-template-columns:1fr;}
+.hero-diagram{order:-1;max-width:460px;margin-inline:auto;width:100%;}
+}
+/* ============ APPROACH ============ */
+.approach{background:var(--surface-2);}
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6rem;}
+.principle{
+background:var(--surface);border:1px solid var(--line);border-radius:4px;
+padding:1.9rem 1.7rem;display:flex;flex-direction:column;gap:0.9rem;
+}
+.principle .tag{
+font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.12em;
+color:var(--accent-2);text-transform:uppercase;
+}
+.principle h3{font-size:1.28rem;line-height:1.32;}
+.principle p{color:var(--ink-soft);font-size:0.97rem;}
+@media (max-width:860px){ .principles{grid-template-columns:1fr;} }
+/* ============ PROCESS ============ */
+.process-connector{width:100%;height:auto;margin-bottom:0.6rem;}
+.process-connector .seg-neutral{stroke:var(--ink-faint);}
+.process-connector .seg-accent{stroke:var(--accent);}
+.process-connector .dot-neutral{fill:var(--ink-soft);}
+.process-connector .dot-pivot{fill:var(--accent);}
+.process-connector .dot-end{fill:var(--accent);}
+.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4rem;}
+.stage{display:flex;flex-direction:column;gap:0.7rem;}
+.stage .num{
+font-family:var(--font-mono);font-size:0.85rem;color:var(--ink-faint);
+letter-spacing:0.05em;
+}
+.stage h3{font-size:1.12rem;line-height:1.3;}
+.stage p{color:var(--ink-soft);font-size:0.93rem;}
+@media (max-width:860px){
+.stages{grid-template-columns:1fr 1fr;}
+.process-connector{display:none;}
+}
+@media (max-width:560px){ .stages{grid-template-columns:1fr;} }
+/* ============ PROGRAMS / PRICING ============ */
+.programs{background:var(--surface-2);}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;align-items:stretch;}
+.tier{
+position:relative;background:var(--surface);border:1px solid var(--line);
+border-radius:4px;padding:1.9rem 1.7rem 2.1rem;
+display:flex;flex-direction:column;gap:1.25rem;
+}
+.tier.featured{border-color:var(--accent-2);}
+.tier-flag{
+position:absolute;top:-0.7rem;left:1.7rem;
+background:var(--accent-2);color:var(--band-ink);
+font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.1em;
+text-transform:uppercase;padding:0.28rem 0.6rem;border-radius:2px;
+}
+.tier-top{display:flex;flex-direction:column;gap:0.5rem;}
+.tier .eyebrow{font-size:0.72rem;}
+.tier-name{font-family:var(--font-display);font-size:1.4rem;font-weight:600;}
+.tier-price{display:flex;align-items:baseline;gap:0.5rem;margin-top:0.3rem;}
+.tier-price .amount{font-family:var(--font-mono);font-size:1.9rem;font-weight:600;}
+.tier-price .cadence{font-family:var(--font-mono);font-size:0.82rem;color:var(--ink-faint);}
+.tier-desc{color:var(--ink-soft);font-size:0.94rem;flex:none;}
+.tier-features{display:flex;flex-direction:column;gap:0.55rem;margin-top:0.2rem;}
+.tier-features li{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.9rem;color:var(--ink-soft);}
+.tier-features li::before{
+content:"";width:6px;height:6px;flex:none;margin-top:0.5em;
+background:var(--accent);transform:rotate(45deg);
+}
+.tier .btn{margin-top:auto;width:100%;}
+@media (max-width:900px){ .tiers{grid-template-columns:1fr;} }
+/* ============ TESTIMONIALS ============ */
+.sample-flag{
+display:inline-flex;align-items:center;gap:0.55rem;
+font-family:var(--font-mono);font-size:0.74rem;letter-spacing:0.08em;
+text-transform:uppercase;color:var(--accent-2);
+background:var(--accent-soft);border:1px solid var(--line);
+padding:0.45rem 0.8rem;border-radius:2px;width:fit-content;
+}
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem;}
+.quote{
+background:var(--surface);border:1px solid var(--line);border-radius:4px;
+padding:1.7rem 1.6rem;display:flex;flex-direction:column;gap:1.1rem;
+}
+.quote blockquote{font-family:var(--font-display);font-style:italic;font-size:1.08rem;line-height:1.5;color:var(--ink);}
+.quote cite{font-style:normal;font-family:var(--font-mono);font-size:0.82rem;color:var(--ink-soft);}
+@media (max-width:900px){ .quotes{grid-template-columns:1fr;} }
+/* ============ ABOUT / COACH BIO ============ */
+.about-card{
+display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start;
+background:var(--surface);border:1px dashed var(--line-strong);border-radius:4px;
+padding:2rem clamp(1.4rem,4vw,2.4rem);position:relative;
+}
+.about-flag{
+position:absolute;top:-0.7rem;left:2rem;
+background:var(--accent-2);color:var(--band-ink);
+font-family:var(--font-mono);font-size:0.66rem;letter-spacing:0.1em;
+text-transform:uppercase;padding:0.28rem 0.6rem;border-radius:2px;
+}
+.about-avatar{
+width:88px;height:88px;border-radius:50%;
+background:var(--surface-2);border:1px solid var(--line);
+display:flex;align-items:center;justify-content:center;flex:none;
+}
+.about-avatar svg{width:40px;height:40px;}
+.about-body{display:flex;flex-direction:column;gap:0.8rem;}
+.about-name{font-family:var(--font-display);font-size:1.35rem;font-weight:600;}
+.about-cred{font-family:var(--font-mono);font-size:0.85rem;color:var(--ink-faint);}
+.about-body p.bio{color:var(--ink-soft);}
+@media (max-width:640px){ .about-card{grid-template-columns:1fr;} }
+/* ============ FINAL CTA ============ */
+.final-cta{background:var(--accent-2);color:var(--band-ink);}
+.final-cta .wrap{
+display:flex;flex-direction:column;align-items:flex-start;gap:1.3rem;
+padding-block:clamp(3rem,7vw,5rem);
+}
+.final-cta h2{color:var(--band-ink);font-size:clamp(1.9rem,4vw,2.7rem);max-width:20ch;}
+.final-cta .note{font-family:var(--font-mono);font-size:0.88rem;opacity:0.82;}
+.final-cta .btn-primary{background:var(--band-ink);color:var(--accent-2);}
+.final-cta .btn-primary:hover{filter:brightness(0.96);}
+/* ============ FOOTER ============ */
+footer{border-top:1px solid var(--line);}
+footer .wrap{
+padding-block:2.4rem;display:flex;flex-direction:column;gap:1.6rem;
+}
+.foot-links{display:flex;gap:1.6rem;font-size:0.9rem;color:var(--ink-soft);}
+.foot-links a:hover{color:var(--ink);}
+.foot-fine{font-family:var(--font-mono);font-size:0.78rem;color:var(--ink-faint);}
+.foot-top{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;}
+</style>
+<header class="nav">
+<div class="wrap">
+<a href="#top" class="brand">
+<svg viewBox="0 0 24 24" aria-hidden="true">
+<polyline class="seg-a" points="3,19 10,13" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline class="seg-b" points="10,13 21,5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="node" cx="10" cy="13" r="2.1"/>
+</svg>
+Fernway
+</a>
+<nav class="nav-links">
+<a href="#approach">Approach</a>
+<a href="#process">Process</a>
+<a href="#programs">Programs</a>
+<a href="#about">About</a>
+</nav>
+<div class="nav-right">
+<a class="btn btn-primary btn-small" href="#final-cta">Book a free call</a>
+</div>
+</div>
+</header>
+<main id="top">
+<!-- ============ HERO ============ -->
+<section class="hero">
+<div class="wrap">
+<div class="hero-copy">
+<p class="eyebrow">
+<svg class="glyph" viewBox="0 0 40 22" aria-hidden="true">
+<polyline class="seg-a" points="2,18 16,10" fill="none" stroke-width="2" stroke-linecap="round"/>
+<polyline class="seg-b" points="16,10 38,3" fill="none" stroke-width="2" stroke-linecap="round"/>
+<circle class="node" cx="16" cy="10" r="1.8"/>
+</svg>
+Career reinvention coaching
+</p>
+<h1>You didn't take a wrong turn.<br>You just haven't turned <em>yet</em>.</h1>
+<p class="lede">There's a specific moment competent people hit: the work still pays, you're still good at it, and you're quietly certain it isn't the rest of your story. Fernway is for that moment. Reinvention isn't a leap of faith — it's a skill, and it's learnable.</p>
+<div class="hero-ctas">
+<a class="btn btn-primary" href="#final-cta">Book a free call</a>
+<a class="btn btn-ghost" href="#process">See how it works</a>
+</div>
+</div>
+<figure class="hero-diagram">
+<svg viewBox="0 0 540 380" role="img" aria-label="Diagram: a shallow current path bends sharply upward at a pivot point into a new direction, with a faint dashed line showing the flatter path of staying put.">
+<line class="pivot-grid" x1="0" y1="140" x2="540" y2="140" stroke-width="1"/>
+<line class="pivot-grid" x1="0" y1="240" x2="540" y2="240" stroke-width="1"/>
+<line class="pivot-grid" x1="0" y1="320" x2="540" y2="320" stroke-width="1"/>
+<!-- staying-put branch (dashed, faint) -->
+<line class="pivot-shadow" x1="260" y1="270" x2="470" y2="220" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round"/>
+<circle class="pivot-dot-shadow" cx="470" cy="220" r="4"/>
+<text class="pivot-label dim" x="470" y="242" text-anchor="end">staying put</text>
+<!-- current path: neutral -->
+<line class="pivot-old" x1="50" y1="320" x2="260" y2="270" stroke-width="3" stroke-linecap="round" fill="none"/>
+<!-- reinvention path: accent, begins exactly at the pivot -->
+<line class="pivot-new" x1="260" y1="270" x2="470" y2="90" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+<circle class="pivot-ring" cx="260" cy="270" r="9"/>
+<circle class="pivot-dot-start" cx="50" cy="320" r="5"/>
+<circle class="pivot-dot-pivot" cx="260" cy="270" r="7"/>
+<circle class="pivot-dot-end" cx="470" cy="90" r="5"/>
+<text class="pivot-label" x="50" y="345">where you are</text>
+<text class="pivot-label accent" x="260" y="252" text-anchor="middle">the pivot</text>
+<text class="pivot-label accent" x="470" y="72" text-anchor="end">the reinvention</text>
+</svg>
+</figure>
+</div>
+</section>
+<div class="wrap"><div class="rule"></div></div>
+<!-- ============ APPROACH ============ -->
+<section class="approach" id="approach">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">
+<svg class="glyph" viewBox="0 0 40 22" aria-hidden="true">
+<polyline class="seg-a" points="2,18 16,10" fill="none" stroke-width="2" stroke-linecap="round"/>
+<polyline class="seg-b" points="16,10 38,3" fill="none" stroke-width="2" stroke-linecap="round"/>
+<circle class="node" cx="16" cy="10" r="1.8"/>
+</svg>
+The approach
+</p>
+<h2>Three things we believe, that most coaching doesn't say out loud</h2>
+</div>
+<div class="principles">
+<article class="principle">
+<span class="tag">Evidence</span>
+<h3>Clarity comes from testing, not thinking.</h3>
+<p>You cannot reason your way into a career you've never tried. Most people spend years journaling toward a decision that one real Tuesday of actually doing the thing would settle in an afternoon.</p>
+</article>
+<article class="principle">
+<span class="tag">Sequence</span>
+<h3>"What's next" is the wrong first question.</h3>
+<p>Before you can answer that, you need to know what's actually wrong with what's now — the work, the people, the pace, or something you haven't named yet. Skip that step and you'll reinvent your way into the same problem with a new title.</p>
+</article>
+<article class="principle">
+<span class="tag">Tolerance</span>
+<h3>Competent people get stuck longer.</h3>
+<p>Being good at something buys you the ability to tolerate it. That tolerance is the trap — it lets you go five more years past the point where someone less capable would already be gone.</p>
+</article>
+</div>
+</div>
+</section>
+<!-- ============ PROCESS ============ -->
+<section id="process">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">
+<svg class="glyph" viewBox="0 0 40 22" aria-hidden="true">
+<polyline class="seg-a" points="2,18 16,10" fill="none" stroke-width="2" stroke-linecap="round"/>
+<polyline class="seg-b" points="16,10 38,3" fill="none" stroke-width="2" stroke-linecap="round"/>
+<circle class="node" cx="16" cy="10" r="1.8"/>
+</svg>
+How it works
+</p>
+<h2>Four stages, run in order</h2>
+<p class="lede">The line stays neutral while you're still figuring out what's wrong. It turns the moment you start testing — that's the actual pivot, not the day you quit.</p>
+</div>
+<svg class="process-connector" viewBox="0 0 800 90" role="presentation" aria-hidden="true">
+<line class="seg-neutral" x1="100" y1="45" x2="300" y2="45" stroke-width="2.5" stroke-linecap="round"/>
+<line class="seg-neutral" x1="300" y1="45" x2="500" y2="20" stroke-width="2.5" stroke-linecap="round"/>
+<line class="seg-accent" x1="500" y1="20" x2="700" y2="45" stroke-width="3" stroke-linecap="round"/>
+<circle class="dot-neutral" cx="100" cy="45" r="5"/>
+<circle class="dot-neutral" cx="300" cy="45" r="5"/>
+<circle class="dot-pivot" cx="500" cy="20" r="7"/>
+<circle class="dot-end" cx="700" cy="45" r="5"/>
+</svg>
+<div class="stages">
+<div class="stage">
+<span class="num tabular">01</span>
+<h3>Name what's actually wrong</h3>
+<p>Not "I'm unhappy." The specific mechanism: the work itself, the pace, the people, or a ceiling you can already see from here.</p>
+</div>
+<div class="stage">
+<span class="num tabular">02</span>
+<h3>Map real options</h3>
+<p>Against your actual constraints — the mortgage, the school year, the market you're actually qualified for. Not a fantasy list of careers.</p>
+</div>
+<div class="stage">
+<span class="num tabular">03</span>
+<h3>Test before you leap</h3>
+<p>Small, cheap, reversible experiments that produce real evidence. A weekend project outperforms a year of "someday."</p>
+</div>
+<div class="stage">
+<span class="num tabular">04</span>
+<h3>Make the move</h3>
+<p>On a timeline, with a plan for the risk. Deliberate, not dramatic — a decision, not a scene.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- ============ PROGRAMS ============ -->
+<section class="programs" id="programs">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">
+<svg class="glyph" viewBox="0 0 40 22" aria-hidden="true">
+<polyline class="seg-a" points="2,18 16,10" fill="none" stroke-width="2" stroke-linecap="round"/>
+<polyline class="seg-b" points="16,10 38,3" fill="none" stroke-width="2" stroke-linecap="round"/>
+<circle class="node" cx="16" cy="10" r="1.8"/>
+</svg>
+Programs
+</p>
+<h2>Three ways to work together</h2>
+<p class="lede">Pick the shape that matches your timeline, not the one that sounds most serious.</p>
+</div>
+<div class="tiers">
+<article class="tier">
+<div class="tier-top">
+<p class="eyebrow">Ongoing · 1:1</p>
+<h3 class="tier-name">Weekly Coaching</h3>
+</div>
+<div class="tier-price">
+<span class="amount tabular">$420</span>
+<span class="cadence">/ month</span>
+</div>
+<p class="tier-desc">For the slow, real work of changing direction while you're still holding down the job you're changing direction from.</p>
+<ul class="tier-features">
+<li>Weekly 45-minute sessions</li>
+<li>Async support between sessions</li>
+<li>Cancel anytime, no contract</li>
+</ul>
+<a class="btn btn-ghost" href="#final-cta">Start weekly coaching</a>
+</article>
+<article class="tier featured">
+<span class="tier-flag">Most requested</span>
+<div class="tier-top">
+<p class="eyebrow">Intensive · 3 weeks</p>
+<h3 class="tier-name">The Clarity Sprint</h3>
+</div>
+<div class="tier-price">
+<span class="amount tabular">$950</span>
+<span class="cadence">flat</span>
+</div>
+<p class="tier-desc">Four sessions, three weeks. For people who don't need more time to think — they need a structure that forces an answer.</p>
+<ul class="tier-features">
+<li>4 sessions in 3 weeks</li>
+<li>Written options map + test plan</li>
+<li>60-day follow-up check-in</li>
+</ul>
+<a class="btn btn-primary" href="#final-cta">Book the sprint</a>
+</article>
+<article class="tier">
+<div class="tier-top">
+<p class="eyebrow">Cohort · 6–8 people</p>
+<h3 class="tier-name">The Departure Cohort</h3>
+</div>
+<div class="tier-price">
+<span class="amount tabular">$180</span>
+<span class="cadence">/ month</span>
+</div>
+<p class="tier-desc">For people leaving a stable job for something self-directed — freelance, a business, a different field entirely. New cohort quarterly.</p>
+<ul class="tier-features">
+<li>Monthly group sessions</li>
+<li>Peer accountability pod</li>
+<li>Built for self-directed exits</li>
+</ul>
+<a class="btn btn-ghost" href="#final-cta">Join the next cohort</a>
+</article>
+</div>
+</div>
+</section>
+<!-- ============ TESTIMONIALS ============ -->
+<section id="testimonials">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">
+<svg class="glyph" viewBox="0 0 40 22" aria-hidden="true">
+<polyline class="seg-a" points="2,18 16,10" fill="none" stroke-width="2" stroke-linecap="round"/>
+<polyline class="seg-b" points="16,10 38,3" fill="none" stroke-width="2" stroke-linecap="round"/>
+<circle class="node" cx="16" cy="10" r="1.8"/>
+</svg>
+What clients say
+</p>
+<h2>Sample testimonials</h2>
+<span class="sample-flag">Illustrative only — not from real clients</span>
+</div>
+<div class="quotes">
+<div class="quote">
+<blockquote>"I spent two years thinking about leaving. Four months in and I'd actually done it."</blockquote>
+<cite>— Priya, marketing director turned potter and teacher (sample)</cite>
+</div>
+<div class="quote">
+<blockquote>"The sprint didn't hand me an answer. It gave me a way to find one — which was better."</blockquote>
+<cite>— Tomas, operations lead weighing a return to teaching (sample)</cite>
+</div>
+<div class="quote">
+<blockquote>"Nobody told me reinvention was a skill you could get better at. Turns out it is."</blockquote>
+<cite>— Alex, senior engineer, still deciding, no longer stuck (sample)</cite>
+</div>
+</div>
+</div>
+</section>
+<!-- ============ ABOUT / COACH BIO ============ -->
+<section id="about">
+<div class="wrap">
+<div class="section-head">
+<p class="eyebrow">
+<svg class="glyph" viewBox="0 0 40 22" aria-hidden="true">
+<polyline class="seg-a" points="2,18 16,10" fill="none" stroke-width="2" stroke-linecap="round"/>
+<polyline class="seg-b" points="16,10 38,3" fill="none" stroke-width="2" stroke-linecap="round"/>
+<circle class="node" cx="16" cy="10" r="1.8"/>
+</svg>
+Meet your coach
+</p>
+</div>
+<div class="about-card">
+<span class="about-flag">Editable — replace before publishing</span>
+<div class="about-avatar">
+<svg viewBox="0 0 40 22" aria-hidden="true">
+<polyline points="2,18 16,10" fill="none" stroke="var(--ink-faint)" stroke-width="2.4" stroke-linecap="round"/>
+<polyline points="16,10 38,3" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="16" cy="10" r="2.2" fill="var(--accent)"/>
+</svg>
+</div>
+<div class="about-body">
+<h3 class="about-name">[ Coach name ]</h3>
+<p class="about-cred">[ Prior career · coaching credential · years practicing ]</p>
+<p class="bio">This section is a placeholder. Replace it with the founding coach's real background — what they did before coaching, what qualifies them to guide a career reinvention, and why this particular work matters to them personally. No details here are real; nothing should go live until they are.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- ============ FINAL CTA ============ -->
+<section class="final-cta" id="final-cta">
+<div class="wrap">
+<h2>Your next chapter starts with one honest conversation.</h2>
+<a class="btn btn-primary" href="#top">Book a free call</a>
+<p class="note">30 minutes. No pitch — just a real conversation about where you're stuck and whether this is the right fit.</p>
+</div>
+</section>
+</main>
+<footer>
+<div class="wrap">
+<div class="foot-top">
+<a href="#top" class="brand">
+<svg viewBox="0 0 24 24" aria-hidden="true">
+<polyline class="seg-a" points="3,19 10,13" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline class="seg-b" points="10,13 21,5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="node" cx="10" cy="13" r="2.1"/>
+</svg>
+Fernway
+</a>
+<div class="foot-links">
+<a href="#approach">Approach</a>
+<a href="#process">Process</a>
+<a href="#programs">Programs</a>
+<a href="#about">About</a>
+</div>
+</div>
+<p class="foot-fine">© 2026 Fernway Coaching. Reinvention is a skill.</p>
+</div>
+  </footer>
